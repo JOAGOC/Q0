@@ -21,23 +21,23 @@ public class AnalizadorLéxico {
         final int letra = 1;
         final int numero = 2;
         final int guionBajo = 3;
-        final int fin = 4;// Estado final
 
         // Estados
         final int q1 = 1;
         final int q2 = 2;
         final int q3 = 3;
         final int q4 = 4;
+        final int fin = 5;// Estado final
 
         final int error = -1;
         final int estadoInicial = 0;
         final int estados[][] = {
-                // # letra numero _ otro
-                { q1, fin, fin, fin, fin },
-                { error, q2, error, error, error },
-                { q4, q2, q2, q3, error },
-                { error, q2, q2, error, error },
-                { error, error, error, error, fin }
+                // #, letra, numero, _
+                { q1, fin, fin, fin },
+                { error, q2, error, error },
+                { q4, q2, q2, q3 },
+                { error, q2, q2, error },
+                { error, error, error, error }
         };
 
         int estado = estadoInicial;
@@ -55,13 +55,14 @@ public class AnalizadorLéxico {
             else if ((int) '_' == cCode)
                 caracter = guionBajo;
             else {
-                caracter = fin;
                 break;
             }
             if ((estado = estados[estado][caracter]) == error)
                 throw new Exception(String.format(
                         "Error: El carácter '%c' en la columna %d no es un caracter válido para un identificador.",
                         c, index+1)); // Se cambia '%d' por '%c' y se agrega variable c
+            if (estado == fin)
+                break;
             if (++index >= codeLine.length()) // Se agrega esta condición para evitar el error StringIndexOutOfBoundsException
                 break;
             c = codeLine.charAt(index);
@@ -69,6 +70,7 @@ public class AnalizadorLéxico {
         switch (estado) {
             case 0:
             case q4:
+            case fin:
                 return index;
             default:
                 throw new Exception(String.format(
@@ -81,7 +83,6 @@ public class AnalizadorLéxico {
         // Columnas de transicion
         final int numero = 0;
         final int punto = 1;
-        final int fin = 2;// Estado final
 
         // Estados
         final int q1 = 1;
@@ -92,10 +93,10 @@ public class AnalizadorLéxico {
         final int estadoInicial = 0;
         final int estados[][] = {
                 // {numero, punto, otro}
-                { q1, q2, fin },
-                { q1, q2, fin },
-                { q3, error, error },
-                { q3, error, fin }
+                { q1, q2 },
+                { q1, q2 },
+                { q3, error},
+                { q3, error}
         };
         int estado = estadoInicial;
         int caracter = estadoInicial;
@@ -107,7 +108,6 @@ public class AnalizadorLéxico {
             else if ((int) '.' == cCode)
                 caracter = punto;
             else {
-                caracter = fin;
                 break;
             }
             if ((estado = estados[estado][caracter]) == error)
