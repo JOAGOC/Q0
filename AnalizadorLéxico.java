@@ -1,12 +1,15 @@
 import java.util.List;
 import java.util.function.Function;
 import javax.swing.table.DefaultTableModel;
-import javax.xml.transform.Source;
-
 import java.util.ArrayList;
 
+class ExcepcionAnalisis extends Exception{
+    ExcepcionAnalisis(String message){
+        super(message);
+    }
+}
+
 public class AnalizadorLéxico {
-    private static String codeLine = "  0.23;\n  #Resistencia1_N#\n134.123;\n#_#";
     private String document = "0.23\n#Resistencia1_N#";
     public List<String> errores = new ArrayList<String>(); // almacenar errores
     public DefaultTableModel tabla = new DefaultTableModel(0, 2);
@@ -76,7 +79,7 @@ public class AnalizadorLéxico {
                     if (evaluarCaracter.apply(c) == -1)
                         break;
                 }
-                throw new Exception(
+                throw new ExcepcionAnalisis(
                         String.format(mensajeError, fila, getColumna(), document.substring(initialIndex, index)));
             }
             if (estado == fin)
@@ -90,7 +93,7 @@ public class AnalizadorLéxico {
                 tabla.addRow(new String[]{document.substring(initialIndex, index),"Identificador"});
                 return true;
             default:
-                throw new Exception(
+                throw new ExcepcionAnalisis(
                         String.format(mensajeError, fila, getColumna(), document.substring(initialIndex, index)));
         }
     }
@@ -150,7 +153,7 @@ public class AnalizadorLéxico {
                     if (evaluarCaracteres.apply(c) == -1)
                         break;
                 }
-                throw new Exception(
+                throw new ExcepcionAnalisis(
                         String.format(mensajeError, fila, getColumna(), document.substring(initialIndex, index)));
             }
             // Se agrega esta condición para evitar el error StringIndexOutOfBoundsException
@@ -159,7 +162,7 @@ public class AnalizadorLéxico {
             case q0:
                 return false;
             case q2:
-                throw new Exception(
+                throw new ExcepcionAnalisis(
                         String.format(mensajeError, fila, getColumna(), document.substring(initialIndex, index)));
             default:
                 tabla.addRow(new String[] { document.substring(initialIndex, index), "Número" });
@@ -208,7 +211,7 @@ public class AnalizadorLéxico {
         index = columna = 0;
         fila = 1;
         char xd;
-        for (; index < document.length(); index++) {
+        for (;index < document.length(); index++) {
             switch (xd = document.charAt(index)) {
                 case '\n':
                     fila++;
@@ -243,14 +246,15 @@ public class AnalizadorLéxico {
                                 if (separadores.contains(document.charAt(index)))
                                     break;
                             } while (++index < document.length());
-                            throw new Exception(
+                            throw new ExcepcionAnalisis(
                                     String.format(mensajeError, fila, getColumna(),
                                             document.substring(initialIndex, index)));
                         }
-                    } catch (Exception e) {
+                    } catch (ExcepcionAnalisis e) {
                         errores.add(e.getMessage());
-                        System.out.println(e.getMessage());
                         index--;
+                    } catch (Exception e){
+                        e.printStackTrace();
                     } // Hay que validar identificadores no válidos
             }
         }
