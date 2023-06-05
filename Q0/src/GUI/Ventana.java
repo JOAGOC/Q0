@@ -447,8 +447,7 @@ public class Ventana extends javax.swing.JFrame {
             errores += err + "\n";
         }
         txtSalida.setText(errores.equals("")?" /\\_/\\\n( o.o )\n> ^ <\nFelicidades!. Ha compilado exitosamente!":errores);
-        String símbolos = analizador.tabla.getDataVector().toString();
-        txtTokens.setText(símbolos.replace("], [", "]\n["));
+        txtTokens.setText(analizador.tokens.toString());
     }
 
     public static void main(String args[]) throws UnsupportedLookAndFeelException {

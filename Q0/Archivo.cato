@@ -1,3 +1,4 @@
+INICIO#
 RESISTENCIA #res1# = 37.5 OHM;
 RESISTENCIA #res2# = 1 KILO-OHM;
 RESISTENCIA #resResultante# = 0;
@@ -23,9 +24,6 @@ REPETIR HASTA (#Circuito1#,#resResultante# ES MAYOR QUE 4300){
  BOOLEANO #boleano# = #tabla# ES IGUAL QUE TABLA[9]
  BOOLEANO #boleano2# = #tabla# ES IGUAL A TABLA[9]
 }
-
-
-
-
-
+FIN#
+RESISTENCIA #res1# = 34 OHM;
 
