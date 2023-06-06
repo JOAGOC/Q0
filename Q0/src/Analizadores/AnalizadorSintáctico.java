@@ -102,7 +102,7 @@ public class AnalizadorSintáctico {
     private void operacionBooleana() throws Exception {
         matchLexema("(");
         EToken t = tokens.getAhead(1).token;
-        identificadorONumero(t);
+        identificadorONumero();
         while (true) {
             t = tokens.getAhead(1).token;
             if (COMPUERTA.equals(t))
@@ -136,7 +136,7 @@ public class AnalizadorSintáctico {
         try {
             ciclo: while (true) {
                 EToken t = tokens.getAhead(1).token;
-                if (!(t.equals(COMPONENTE) || t.equals(IDENTIFICADOR) || t.equals(TIPO_DE_DATO) || t.equals(CICLO) || t.equals(CONDICION_INICIAL)))
+                if (!(t.equals(COMPONENTE) || t.equals(IDENTIFICADOR) || t.equals(TIPO_DE_DATO) || t.equals(CICLO) || t.equals(CONDICION_INICIAL) || t.equals(ACCION)))
                     break ciclo;
                 switch (t) {
                     case COMPONENTE:
@@ -151,10 +151,23 @@ public class AnalizadorSintáctico {
                     case CONDICION_INICIAL:
                         condicion();
                         continue ciclo;
+                    case ACCION:
+                        matchLexema("CONECTAR");
+                        matchToken(IDENTIFICADOR);
+                        matchLexema("CON");
+                        matchToken(IDENTIFICADOR);
+                        matchLexema(";");
+                        continue ciclo;
                     default:
                         break;
                 }
                 matchToken(IDENTIFICADOR);
+                t = tokens.getAhead(1).token;
+                if (OPERADOR_UNARIO.equals(t)){
+                    matchToken(OPERADOR_UNARIO);
+                    matchLexema(";");
+                    continue ciclo;
+                }
                 String tS = tokens.getAhead(1).lexema;
                 if (tS.equals("=")){
                     matchLexema("=");
@@ -208,9 +221,7 @@ public class AnalizadorSintáctico {
                 }
                 matchLexema(";");
             }
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
+        } catch (Exception e) {}
     }
     
     private void condicion() {
@@ -240,7 +251,7 @@ public class AnalizadorSintáctico {
                 matchLexema(":");
                 matchLexema("{");
                 while (true) {
-                    String tS = tokens.getAhead(1).lexema;
+                    tS = tokens.getAhead(1).lexema;
                     if (tS.equals("OPCION")){
                         matchLexema("OPCION");
                         identificadorONumero();
@@ -261,6 +272,7 @@ public class AnalizadorSintáctico {
                         break;
                     }
                 }
+                matchLexema("}");
             }
         } catch (Exception e) {}
     }

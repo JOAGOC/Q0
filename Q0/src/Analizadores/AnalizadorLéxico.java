@@ -239,6 +239,7 @@ public class AnalizadorLéxico {
                                 if (separadores.contains(document.charAt(index)))
                                     break;
                             } while (++index < document.length());
+                            index=initialIndex == index ? index+1:index;
                             String substring = document.substring(initialIndex, index--);
                             if (esPalabraReservada(substring))
                                 ;
@@ -296,6 +297,10 @@ public class AnalizadorLéxico {
             if (estado == q0 && caracter == otro)
                 break;
             if ((estado = estados[estado][caracter]) == error) {
+                if (document.charAt(index) == '#' || ((int)document.charAt(index) >= 48 && (int)document.charAt(index) <=57)){
+                    --index;
+                    return false;
+                }
                 while (++index < document.length()) {
                     c = document.charAt(index);
                     if (c == '\n' || c == ' ')

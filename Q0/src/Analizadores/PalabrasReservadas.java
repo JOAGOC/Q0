@@ -82,8 +82,9 @@ public class PalabrasReservadas {
         tablaAcciones.put("TIEMPO", ACCION);
         tablaAcciones.put("LEER", ACCION);
         tablaAcciones.put("ESCRIBIR", ACCION);
-        tablaAcciones.put("INTERRUMPIR", ACCION);
+        tablaAcciones.put("INTERRUMPIR", INTERRUPCION);
         tablaAcciones.put("CONECTAR", ACCION);
+        tablaAcciones.put("CON", ACCION);
         tablaAcciones.put("ENCENDER", ACCION_BOOLEANA);
         tablaAcciones.put("APAGAR", ACCION_BOOLEANA);
         tablaAcciones.put("EN", ACCION);
@@ -115,7 +116,8 @@ public class PalabrasReservadas {
         tablaOperadores.put("!", OPERADOR);
         tablaOperadores.put("**", OPERADOR_ARITMETICO);
         tablaOperadores.put("*", OPERADOR_ARITMETICO);
-        tablaOperadores.put("++", OPERADOR);
+        tablaOperadores.put("++", OPERADOR_UNARIO);
+        tablaOperadores.put("--", OPERADOR_UNARIO);
         tablaOperadores.put("/", OPERADOR_ARITMETICO);
         tablaOperadores.put("+", OPERADOR_ARITMETICO);     
         tablaOperadores.put("-", OPERADOR_ARITMETICO);
@@ -127,6 +129,7 @@ public class PalabrasReservadas {
         tablaOperadores.put("}", OPERADOR);
         tablaOperadores.put("]", OPERADOR);
         tablaOperadores.put(";", OPERADOR);
+        tablaOperadores.put(":", OPERADOR);
         tablaOperadores.put(",", OPERADOR);
     }
 

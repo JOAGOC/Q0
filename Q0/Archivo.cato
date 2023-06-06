@@ -1,32 +1,33 @@
-// RESISTENCIA #ANS_ASD#
-
+//Nos subestimaron, pero se logró
 INICIO#
-
-CIRCUITO ANALOGICO #Circuito1#{
- DECIMAL #decimal# = 31.4;
- #resResultante# = #decimal#;
- #resResultante# = 1.11111;
-}
-
 FUNCION PRINCIPAL{
- LED #led1# = APAGAR;
- REPETIR HASTA (#xd# ES MAYOR QUE 3){
- #led# = ENCENDER;
-  REPETIR HASTA (#claudia# ES MAYOR QUE #cien#){
-    SI (#AIE# ES MENOR QUE 28 AND 32 ES IGUAL A 32){
-     TIERRA #t1#;
-     RESISTENCIA #R1#;
-     ENTERO #enterito# = 32;
-    }
-  }  
- }
- //LEER TABLA;
- //ESCRIBIR TABLA;
- //BOOLEANO #boleano# = #tabla# ES IGUAL QUE TABLA[9]
- //BOOLEANO #boleano2# = #tabla# ES IGUAL A TABLA[9]
+	LED #LED1#;
+	ENTERO #idEntero# = 43;
+	REPETIR HASTA(#idEntero# ES MAYOR QUE 20){
+	#LED1# = ENCENDER;
+	#LED2# = APAGAR;
+	CONECTAR #LED1# CON #LED2#;
+		SI(#idEntero# ES IGUAL QUE #idDecimal#){
+			RESISTENCIA #unaResistencia# = 32 KILO-OHM;
+			CONECTAR #A3# CON #AN#;
+		}
+		ELEGIR(#elegirOpciones#):{
+			OPCION #identificador#:
+				ENTERO #idEntero# = 43;	
+			INTERRUMPIR;
+			OPCION 43:
+			RELE #xd# = ENCENDER;
+			INTERRUMPIR;
+		}
+		#Identi2#--;
+		ENTERO #XD# = 31+21+2+5+7+3/#ae#;
+		REPETIR MIENTRAS (1 AND 1){
+			#CATO# = 1+#ACATO#-#AGUACATO#/#GATO#;
+		}
+	}
+
 }
 FIN#
-RESISTENCIA #res1# = 34 OHM;
 
 
 
