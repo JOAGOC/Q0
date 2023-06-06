@@ -19,7 +19,8 @@ public enum EToken {
     NUMERO("Número"),
     CONFIGURACION_CIRCUITO("Configuración de circuito"),
     OPERADOR_ARITMETICO("Operador Aritmético"),
-    ACCION_BOOLEANA("Acción booleana");
+    ACCION_BOOLEANA("Acción booleana"),
+    CONDICION_INICIAL("Condición Inicial");
     
     private String token;
 

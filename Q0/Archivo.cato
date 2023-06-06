@@ -1,29 +1,32 @@
+// RESISTENCIA #ANS_ASD#
+
 INICIO#
-RESISTENCIA #res1# = 37.5 OHM;
-RESISTENCIA #res2# = 1 KILO-OHM;
-RESISTENCIA #resResultante# = 0;
-#resResultante# = #res2# + #res1#;
-#resResultante# = #resResultante# NANO-OHM;
 
-LED #led1#;
-ENCENDER LED;
-BOOLEANO #xd# = VERDADERO;
-
-ANALOGICO #Circuito1#{
- CONECTAR EN SERIE(FUENTE,#resResultante#,RESISTENCIA 200 MILI-OHM);
- TIERRA;
+CIRCUITO ANALOGICO #Circuito1#{
  DECIMAL #decimal# = 31.4;
- #resResultante# += #decimal#;
- #resResultante# -= 1.11111;
+ #resResultante# = #decimal#;
+ #resResultante# = 1.11111;
 }
 
-REPETIR HASTA (#Circuito1#,#resResultante# ES MAYOR QUE 4300){
- TABLA[9] #tabla#;
- LEER TABLA;
- ESCRIBIR TABLA;
- BOOLEANO #boleano# = #tabla# ES IGUAL QUE TABLA[9]
- BOOLEANO #boleano2# = #tabla# ES IGUAL A TABLA[9]
+FUNCION PRINCIPAL{
+ LED #led1# = APAGAR;
+ REPETIR HASTA (#xd# ES MAYOR QUE 3){
+ #led# = ENCENDER;
+  REPETIR HASTA (#claudia# ES MAYOR QUE #cien#){
+    SI (#AIE# ES MENOR QUE 28 AND 32 ES IGUAL A 32){
+     TIERRA #t1#;
+     RESISTENCIA #R1#;
+     ENTERO #enterito# = 32;
+    }
+  }  
+ }
+ //LEER TABLA;
+ //ESCRIBIR TABLA;
+ //BOOLEANO #boleano# = #tabla# ES IGUAL QUE TABLA[9]
+ //BOOLEANO #boleano2# = #tabla# ES IGUAL A TABLA[9]
 }
 FIN#
 RESISTENCIA #res1# = 34 OHM;
+
+
 

@@ -185,10 +185,9 @@ public class PalabrasReservadas {
         if (tablaControl != null)
             return;
         tablaControl = new HashMap<String, EToken>();
-        tablaControl.put("SI", CONDICION);
-        tablaControl.put("NO", CONDICION);
-        tablaControl.put("SI NO", CONDICION);
-        tablaControl.put("ELEGIR", CONDICION);
+        tablaControl.put("SI", CONDICION_INICIAL);
+        tablaControl.put("SI_NO", CONDICION);
+        tablaControl.put("ELEGIR", CONDICION_INICIAL);
         tablaControl.put("OPCION", CONDICION);
         tablaControl.put("POR", CONDICION);
         tablaControl.put("DEFECTO", CONDICION);
