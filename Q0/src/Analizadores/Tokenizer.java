@@ -18,8 +18,21 @@ class Token{
 public class Tokenizer extends ArrayList<Token>{
     public int index = -1;
 
+    public Token getAhead(int i){
+        return this.get(index + i);
+    }
+
+    public Token getTokenActual(){
+        return this.get(index);
+    }
+
     public Token getnNextToken(){
-        return this.get(++index);
+        try {
+            return this.get(++index);
+        } catch (IndexOutOfBoundsException e) {
+            index--;
+            throw e;
+        }
     }
 
     @Override

@@ -27,6 +27,14 @@ public class AnalizadorLéxico {
         iniciarPalabrasReservadas();
     }
 
+    public String getErrores(){
+        String errores = "";
+        for (String err : this.errores) {
+            errores += err + "\n";
+        }
+        return errores;
+    }
+
     public boolean esIdentificador() throws Exception {
         final String mensajeError = "Error (Fila %d, Columna %d): %s no es un identificador válido.";
 
@@ -171,10 +179,10 @@ public class AnalizadorLéxico {
                 throw new ExcepcionAnalisis(
                         String.format(mensajeError, fila, getColumna(), document.substring(initialIndex, index)));
             case q3:
-                tokens.add(new Token(document.substring(initialIndex, index), NUMERO_DECIMAL, new Point(fila,getColumna())));
+                tokens.add(new Token(document.substring(initialIndex, index), NUMERO, new Point(fila,getColumna())));
                 return true;
             case q1:
-                tokens.add(new Token(document.substring(initialIndex, index), NUMERO_ENTERO, new Point(fila,getColumna())));
+                tokens.add(new Token(document.substring(initialIndex, index), NUMERO, new Point(fila,getColumna())));
                 return true;
         }
         return false;
@@ -207,7 +215,9 @@ public class AnalizadorLéxico {
                     break;
                 default:
                     try {
-                        if (esOperador())
+                        if (esComentario())
+                            index--;
+                        else if (esOperador())
                             ;
                         else if (esNumero())
                             index--;
@@ -247,6 +257,66 @@ public class AnalizadorLéxico {
         }
     }
 
+    private boolean esComentario() throws Exception{
+        final String mensajeError = "No se pudo resolver %s (Fila %d, Columna %d).";
+
+        // Columnas de transicion
+        final int diagonal = 0;
+        final int otro = 1;
+
+        // Estados
+        final int q1 = 1;
+        final int q2 = 2;
+        final int q3 = 3;
+        final int error = -1;
+        final int q0 = 0;
+
+        final int estados[][] = {
+                // {diagonal, otro}
+                { q1, error }, // False
+                { q2, error }, // True
+                { q2, q2 }// True
+        };
+
+        int estado = q0;
+        int caracter = q0;
+        // Puntero del autómata
+        final int initialIndex = index;
+        // Puntero inicial para el caso del error
+
+        char c;
+        do {
+            c = document.charAt(index);
+            if (c == '\n')
+                break;
+            if (c == '/')
+                caracter = diagonal;
+            else
+                caracter = otro;
+            if (estado == q0 && caracter == otro)
+                break;
+            if ((estado = estados[estado][caracter]) == error) {
+                while (++index < document.length()) {
+                    c = document.charAt(index);
+                    if (c == '\n' || c == ' ')
+                        break;
+                }
+                throw new ExcepcionAnalisis(
+                        String.format(mensajeError, document.substring(initialIndex, index),fila, getColumna()));
+            }
+            // Se agrega esta condición para evitar el error StringIndexOutOfBoundsException
+        } while (++index < document.length());
+        switch (estado) {
+            case q1:
+            throw new ExcepcionAnalisis(
+                String.format(mensajeError, document.substring(initialIndex, index),fila, getColumna()));
+            case q2:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     private boolean esPalabraReservada(String substring) {
         try {
             return es(tablaComponentes, substring) || es(tablaUnidades, substring)
@@ -277,12 +347,13 @@ public class AnalizadorLéxico {
             return true;
         }
         c2 = document.charAt(index);
-        if (!tablaOperadores.containsKey(c + c2 + "")) {
+        String xd = (c+"") + (c2+"");
+        if (!tablaOperadores.containsKey(xd)) {
             tokens.add(new Token(c + "", tablaOperadores.get(c + ""), new Point(fila,getColumna())));
             index--;
             return true;
         } else {
-            tokens.add(new Token(c + c2 + "", tablaOperadores.get(c + c2 + ""), new Point(fila,getColumna())));
+            tokens.add(new Token(xd, tablaOperadores.get(xd), new Point(fila,getColumna())));
             return true;
         }
     }

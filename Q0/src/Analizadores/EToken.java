@@ -15,8 +15,11 @@ public enum EToken {
     OPERADOR_COMPARADOR("Operador comparador"),
     TIPO_DE_DATO("Tipo de dato"),
     IDENTIFICADOR("Identificador"),
-    NUMERO_DECIMAL("Número Decimal"),
-    NUMERO_ENTERO("Número Entero");
+    BLOQUE("Bloque"),
+    NUMERO("Número"),
+    CONFIGURACION_CIRCUITO("Configuración de circuito"),
+    OPERADOR_ARITMETICO("Operador Aritmético"),
+    ACCION_BOOLEANA("Acción booleana");
     
     private String token;
 

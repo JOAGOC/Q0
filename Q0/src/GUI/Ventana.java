@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -24,6 +23,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import Analizadores.AnalizadorSintáctico;
 
 public class Ventana extends javax.swing.JFrame {
 
@@ -238,7 +238,8 @@ public class Ventana extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    AnalizadorLéxico analizador;
+    AnalizadorLéxico analizadorL;
+    AnalizadorSintáctico analizadorS;
     NumeroLinea nm;
     String rutaDocumento = System.getProperty("user.dir") + "\\" + "Archivo.cato";
     private int AUTO_SAVE_DELAY = 1500;
@@ -437,17 +438,15 @@ public class Ventana extends javax.swing.JFrame {
         } catch (IOException e) {
             e.printStackTrace(); // Manejo de errores
         }
-        System.out.println("Adasfqe");
+        System.out.println("Guardado");
     }
 
     private void analizar(ActionEvent e) {
-        (analizador = new AnalizadorLéxico(textArea.getText())).analizar();
-        String errores = "";
-        for (String err : analizador.errores) {
-            errores += err + "\n";
-        }
-        txtSalida.setText(errores.equals("")?" /\\_/\\\n( o.o )\n> ^ <\nFelicidades!. Ha compilado exitosamente!":errores);
-        txtTokens.setText(analizador.tokens.toString());
+        (analizadorL = new AnalizadorLéxico(textArea.getText())).analizar();
+        txtSalida.setText(analizadorL.errores.isEmpty() ? " /\\_/\\\n( o.o )\n> ^ <\nFelicidades!. Ha compilado exitosamente!":analizadorL.getErrores());
+        txtTokens.setText(analizadorL.tokens.toString());
+        (analizadorS = new AnalizadorSintáctico(analizadorL)).parse();
+        txtSalida.setText(txtSalida.getText() + "\n\n" + analizadorS.getErrores());
     }
 
     public static void main(String args[]) throws UnsupportedLookAndFeelException {

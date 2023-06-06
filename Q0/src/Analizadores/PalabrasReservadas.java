@@ -75,7 +75,8 @@ public class PalabrasReservadas {
         tablaAcciones = new HashMap<String, EToken>();
         tablaAcciones.put("ESPERAR", ACCION);
         tablaAcciones.put("IMPORTAR", ACCION);
-        tablaAcciones.put("FUNCION", ACCION);
+        tablaAcciones.put("FUNCION", BLOQUE);
+        tablaAcciones.put("CIRCUITO", BLOQUE);
         tablaAcciones.put("INICIAR", ACCION);
         tablaAcciones.put("DETENER", ACCION);
         tablaAcciones.put("TIEMPO", ACCION);
@@ -83,8 +84,8 @@ public class PalabrasReservadas {
         tablaAcciones.put("ESCRIBIR", ACCION);
         tablaAcciones.put("INTERRUMPIR", ACCION);
         tablaAcciones.put("CONECTAR", ACCION);
-        tablaAcciones.put("ENCENDER", ACCION);
-        tablaAcciones.put("APAGAR", ACCION);
+        tablaAcciones.put("ENCENDER", ACCION_BOOLEANA);
+        tablaAcciones.put("APAGAR", ACCION_BOOLEANA);
         tablaAcciones.put("EN", ACCION);
     }
 
@@ -112,12 +113,12 @@ public class PalabrasReservadas {
         // '!', '#', '^', '&', '*', '-', '+', '=', '{', '}', '[', ']',
         // '(', ')', '<', '>', '?', '|', '\\', '/', ',', '.', ';', ':', '\'', '"'
         tablaOperadores.put("!", OPERADOR);
-        tablaOperadores.put("**", OPERADOR);
+        tablaOperadores.put("**", OPERADOR_ARITMETICO);
+        tablaOperadores.put("*", OPERADOR_ARITMETICO);
         tablaOperadores.put("++", OPERADOR);
-        tablaOperadores.put("/", OPERADOR);
-        tablaOperadores.put("+", OPERADOR);     
-        tablaOperadores.put("-", OPERADOR);
-        tablaOperadores.put("=", OPERADOR);
+        tablaOperadores.put("/", OPERADOR_ARITMETICO);
+        tablaOperadores.put("+", OPERADOR_ARITMETICO);     
+        tablaOperadores.put("-", OPERADOR_ARITMETICO);
         tablaOperadores.put("=", OPERADOR);
         tablaOperadores.put("(", OPERADOR);
         tablaOperadores.put("{", OPERADOR);
@@ -160,8 +161,9 @@ public class PalabrasReservadas {
         tablaConfiguración.put("FRECUENCIA", CONFIGURACION);
         tablaConfiguración.put("SERIE", CONFIGURACION);
         tablaConfiguración.put("PARALELO", CONFIGURACION);
-        tablaConfiguración.put("DIGITAL", CONFIGURACION);
-        tablaConfiguración.put("ANALOGICO", CONFIGURACION);
+        tablaConfiguración.put("PRINCIPAL", CONFIGURACION);
+        tablaConfiguración.put("DIGITAL", CONFIGURACION_CIRCUITO);
+        tablaConfiguración.put("ANALOGICO", CONFIGURACION_CIRCUITO);
     }
 
     public static Map<String, EToken> tablaCiclo;
@@ -173,7 +175,6 @@ public class PalabrasReservadas {
         tablaCiclo.put("REPETIR", CICLO);
         tablaCiclo.put("MIENTRAS", CICLO);
         tablaCiclo.put("HASTA", CICLO);
-        tablaCiclo.put("QUE", CICLO);
         tablaCiclo.put("POR", CICLO);
         tablaCiclo.put("PARA", CICLO);
     }
