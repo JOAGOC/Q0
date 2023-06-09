@@ -14,19 +14,29 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.Utilities;
+
 import Analizadores.AnalizadorSintáctico;
 
 public class Ventana extends javax.swing.JFrame {
 
+    // <editor-fold defaultstate="collapsed" desc="Generated
+    // <editor-fold defaultstate="collapsed" desc="Generated
     // <editor-fold defaultstate="collapsed" desc="Generated
     // <editor-fold defaultstate="collapsed" desc="Generated
     // <editor-fold defaultstate="collapsed" desc="Generated
@@ -44,6 +54,7 @@ public class Ventana extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         textArea = new javax.swing.JTextArea();
         btnAnalizar = new javax.swing.JButton();
+        lblCaret = new javax.swing.JLabel();
         javax.swing.JSplitPane jSplitPane1 = new javax.swing.JSplitPane();
         javax.swing.JPanel jPanel2 = new javax.swing.JPanel();
         javax.swing.JScrollPane jScrollPane4 = new javax.swing.JScrollPane();
@@ -145,6 +156,14 @@ public class Ventana extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         jPanel3.add(btnAnalizar, gridBagConstraints);
+
+        lblCaret.setText("jLabel5");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        jPanel3.add(lblCaret, gridBagConstraints);
 
         jSplitPane2.setLeftComponent(jPanel3);
 
@@ -302,12 +321,12 @@ public class Ventana extends javax.swing.JFrame {
 
         jSlider1.addChangeListener(new ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent e) {
-                txtTiempoAG.setText((jSlider1.getValue())+"");
-                AUTO_SAVE_DELAY = jSlider1.getValue()*1000;
+                txtTiempoAG.setText((jSlider1.getValue()) + "");
+                AUTO_SAVE_DELAY = jSlider1.getValue() * 1000;
             };
         });
-        jSlider1.setValue(AUTO_SAVE_DELAY/1000);
-        
+        jSlider1.setValue(AUTO_SAVE_DELAY / 1000);
+
         txtTiempoAG.addKeyListener(new KeyListenerP() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -319,24 +338,52 @@ public class Ventana extends javax.swing.JFrame {
                     if (txtTiempoAG.getText().equals(""))
                         return;
                     jSlider1.setValue(Integer.parseInt(txtTiempoAG.getText()));
-                    AUTO_SAVE_DELAY = jSlider1.getValue()*1000;
+                    AUTO_SAVE_DELAY = jSlider1.getValue() * 1000;
                 } catch (Exception e) {
                     jSlider1.setValue(30);
                 }
             }
         });
-        
+
         btnConfiguración.addActionListener(e -> {
             jDialog1.setLocationRelativeTo(null);
             jDialog1.setVisible(true);
-            //jDialog1.setLocation(10,10);
+            // jDialog1.setLocation(10,10);
         });
+
+        textArea.addCaretListener(new CaretListener() {
+            public void caretUpdate(CaretEvent e) {
+                obtenerPuntero();
+            }
+        });
+        obtenerPuntero();
     }
 
-    interface KeyListenerP extends KeyListener{
-        default void keyReleased(KeyEvent e) {}
-        default void keyTyped(KeyEvent e) {}
-        default void keyPressed(KeyEvent e) {}
+    private void obtenerPuntero() {
+        int caretPosition = textArea.getCaretPosition();
+        try {
+            Document doc = textArea.getDocument();
+
+            // Obtener la posición de línea y columna
+            int line = doc.getDefaultRootElement().getElementIndex(caretPosition) + 1;
+            int column = caretPosition - Utilities.getRowStart(textArea, caretPosition) + 1;
+
+            // Imprimir la posición de línea y columna
+            lblCaret.setText("Lin. " + line + ", col. " + column);
+        } catch (BadLocationException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    interface KeyListenerP extends KeyListener {
+        default void keyReleased(KeyEvent e) {
+        }
+
+        default void keyTyped(KeyEvent e) {
+        }
+
+        default void keyPressed(KeyEvent e) {
+        }
     }
 
     private void abrir() {
@@ -354,14 +401,14 @@ public class Ventana extends javax.swing.JFrame {
     private void cargarDocumento(File file) {
         rutaDocumento = file.getAbsolutePath();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            StringBuilder content = new StringBuilder();
+            List<String> lines = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
-                content.append(line).append("\n");
+                lines.add(line);
             }
+            String contentText = String.join("\n", lines);
             // Cargar el contenido en el JTextArea
-            textArea.setText(content.toString());
-            System.out.println("Archivo cargado correctamente.");
+            textArea.setText(contentText);
         } catch (IOException e) {
             System.out.println("Error al cargar el archivo: " + e.getMessage());
         }
@@ -443,10 +490,19 @@ public class Ventana extends javax.swing.JFrame {
 
     private void analizar(ActionEvent e) {
         (analizadorL = new AnalizadorLéxico(textArea.getText())).analizar();
-        txtSalida.setText(analizadorL.errores.isEmpty() ? " /\\_/\\\n( o.o )\n> ^ <\nFelicidades!. Ha compilado exitosamente!":analizadorL.getErrores());
-        txtTokens.setText(analizadorL.tokens.toString());
-        (analizadorS = new AnalizadorSintáctico(analizadorL)).parse();
-        txtSalida.setText(txtSalida.getText() + "\n\n" + analizadorS.getErrores());
+        boolean sinErroresLexicos;
+        txtSalida.setText(
+                (sinErroresLexicos = analizadorL.errores.isEmpty())
+                        ? " /\\_/\\\n( o.o )\n> ^ <\nNo se detectaron errores léxicos!"
+                        : analizadorL.getErrores());
+        txtTokens.setText(analizadorL.getTokens());
+        if (sinErroresLexicos) {
+            (analizadorS = new AnalizadorSintáctico(analizadorL)).parse();
+            txtSalida.setText(txtSalida.getText() + "\n\n"
+                    + (analizadorS.getErrores().equals("")
+                            ? " /\\_/\\\n( o.o )\n> ^ <\nNo se detectaron errores sintácticos!"
+                            : analizadorS.getErrores()));
+        }
     }
 
     public static void main(String args[]) throws UnsupportedLookAndFeelException {
@@ -472,6 +528,7 @@ public class Ventana extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSlider jSlider1;
+    private javax.swing.JLabel lblCaret;
     private javax.swing.JTextArea textArea;
     private javax.swing.JTextArea txtSalida;
     private javax.swing.JTextField txtTiempoAG;

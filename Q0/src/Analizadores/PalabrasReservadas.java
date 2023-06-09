@@ -1,7 +1,9 @@
 package Analizadores;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import static Analizadores.EToken.*;
 
 public class PalabrasReservadas {
@@ -18,6 +20,7 @@ public class PalabrasReservadas {
         inicializarTablaControl();
         inicializarTablaComparador();
         inicializarTablaDatos();
+        inicializarSeparadores();
     }
 
     public static Map<String, EToken> tablaComponentes;
@@ -84,7 +87,7 @@ public class PalabrasReservadas {
         tablaAcciones.put("ESCRIBIR", ACCION);
         tablaAcciones.put("INTERRUMPIR", INTERRUPCION);
         tablaAcciones.put("CONECTAR", ACCION);
-        tablaAcciones.put("CON", ACCION);
+        tablaAcciones.put("CON", AUXILIAR);
         tablaAcciones.put("ENCENDER", ACCION_BOOLEANA);
         tablaAcciones.put("APAGAR", ACCION_BOOLEANA);
         tablaAcciones.put("EN", ACCION);
@@ -119,7 +122,7 @@ public class PalabrasReservadas {
         tablaOperadores.put("++", OPERADOR_UNARIO);
         tablaOperadores.put("--", OPERADOR_UNARIO);
         tablaOperadores.put("/", OPERADOR_ARITMETICO);
-        tablaOperadores.put("+", OPERADOR_ARITMETICO);     
+        tablaOperadores.put("+", OPERADOR_ARITMETICO);
         tablaOperadores.put("-", OPERADOR_ARITMETICO);
         tablaOperadores.put("=", OPERADOR);
         tablaOperadores.put("(", OPERADOR);
@@ -226,5 +229,32 @@ public class PalabrasReservadas {
         tablaDatos.put("BOOLEANO", TIPO_DE_DATO);
         tablaDatos.put("TABLA", TIPO_DE_DATO);
         tablaDatos.put("COMPONENTE", TIPO_DE_DATO);
+    }
+
+    public static ArrayList<Character> separadores;
+
+    public static void inicializarSeparadores() {
+        if (separadores != null)
+            return;
+        separadores = new ArrayList<Character>();
+        separadores.add('!');
+        separadores.add('*');
+        separadores.add('+');
+        separadores.add('-');
+        separadores.add('/');
+        separadores.add('=');
+        separadores.add('(');
+        separadores.add('{');
+        separadores.add('[');
+        separadores.add(')');
+        separadores.add('}');
+        separadores.add(']');
+        separadores.add(';');
+        separadores.add(':');
+        separadores.add(',');
+        separadores.add('\n');
+        separadores.add(' ');
+        separadores.add('\t');
+        separadores.add('&');
     }
 }

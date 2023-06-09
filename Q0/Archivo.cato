@@ -1,33 +1,43 @@
-//Nos subestimaron, pero se logró
+&Nos subestimaron, pero se logró 
 INICIO#
-FUNCION PRINCIPAL{
+FUNCION PRINCIPAL {
 	LED #LED1#;
-	ENTERO #idEntero# = 43;
+	#IDENTIFICADOR#;
+	#idEntero# = 43;
 	REPETIR HASTA(#idEntero# ES MAYOR QUE 20){
 	#LED1# = ENCENDER;
 	#LED2# = APAGAR;
+	#LED1# = APAGAR;
 	CONECTAR #LED1# CON #LED2#;
 		SI(#idEntero# ES IGUAL QUE #idDecimal#){
 			RESISTENCIA #unaResistencia# = 32 KILO-OHM;
-			CONECTAR #A3# CON #AN#;
+			CONECTAR #q# CON #A2#;
 		}
 		ELEGIR(#elegirOpciones#):{
 			OPCION #identificador#:
-				ENTERO #idEntero# = 43;	
-			INTERRUMPIR;
-			OPCION 43:
+				ENTERO #idEntero# = 43;
+			#ID# = 1;
+			RESISTENCIA  #AD#  ;
 			RELE #xd# = ENCENDER;
+			#xd#;
 			INTERRUMPIR;
 		}
-		#Identi2#--;
-		ENTERO #XD# = 31+21+2+5+7+3/#ae#;
+		#Identi2#++;
+		ENTERO #XD# = 31+21+2+5+3*3/3;
 		REPETIR MIENTRAS (1 AND 1){
 			#CATO# = 1+#ACATO#-#AGUACATO#/#GATO#;
 		}
 	}
+}
 
+CIRCUITO ANALOGICO #HOLA_MUNDO# {
+CONECTAR #XD# CON #XDDD#;
+}
+
+FUNCION #XDDD#{
+     REPETIR MIENTRAS (1 ES MAYOR A #w11#){
+	DISPLAY #HD#;
+	#HD# = #MEGACABLE#;
+   }
 }
 FIN#
-
-
-

@@ -16,24 +16,29 @@ public class AnalizadorSintáctico {
 
     public AnalizadorSintáctico(AnalizadorLéxico l) {
         this.tokens = l.tokens;
+        iniciarIniciadores();
+        iniciarFinalizadores();
     }
 
     public void matchToken(EToken etoken) throws Exception {
         try {
             if (!etoken.equals(tokens.getnNextToken().token)) {
-                Token t = tokens.getTokenActual();
+                Token t = tokens.getAhead(-1);
                 Point p = t.point;
                 throw new ExcepcionSintactica(
-                        String.format("Error sintáctico (Fila %s, Columna %s). Se esperaba: <%s>", p.x, p.y, etoken));
+                        String.format(
+                                "Error sintáctico (Fila %s, Columna %s). Se esperaba seguir con: <%s> en lugar de <%s>",
+                                p.x, p.y, etoken, tokens.actual.lexema));
             }
         } catch (ExcepcionSintactica e) {
             errores.add(e.getMessage());
+            throw e;
         } catch (IndexOutOfBoundsException e) {
             Token t = tokens.getTokenActual();
             Point p = t.point;
             errores.add(String.format("Error sintáctico (Fila %s, Columna %s). Se esperaba seguir con: <%s>", p.x, p.y,
                     etoken));
-            throw new Exception();
+            throw e;
         }
     }
 
@@ -48,41 +53,72 @@ public class AnalizadorSintáctico {
     private void matchLexema(String lexema) throws Exception {
         try {
             if (!lexema.equals(tokens.getnNextToken().lexema)) {
-                Token t = tokens.getTokenActual();
+                Token t = tokens.getAhead(-1);
                 Point p = t.point;
                 throw new ExcepcionSintactica(
-                        String.format("Error sintáctico (Fila %s, Columna %s). Se esperaba: <%s>", p.x, p.y, lexema));
+                        String.format("Error sintáctico (Fila %s, Columna %s). Se esperaba: <%s>, en lugar de <%s>",
+                                p.x, p.y, lexema, tokens.actual.lexema));
             }
         } catch (ExcepcionSintactica e) {
             errores.add(e.getMessage());
+            throw e;
         } catch (IndexOutOfBoundsException e) {
             Token t = tokens.getTokenActual();
             Point p = t.point;
             errores.add(String.format("Error sintáctico (Fila %s, Columna %s). Se esperaba seguir con: <%s>", p.x, p.y,
                     lexema));
-            throw new Exception();
+            throw e;
+        }
+    }
+
+    private void panico() {
+        EToken t;
+        String tS;
+        int limite = tokens.size() - tokens.index;
+        for (int index = 0; index < limite; index++) {
+            t = tokens.getAhead(index).token;
+            tS = tokens.getAhead(index).lexema;
+            if (iniciadores.contains(t) || finalizadores.contains(tS)) {
+                tokens.index += index - 1;
+                sentencia();
+                return;
+            }
         }
     }
 
     public void parse() {
         try {
             matchLexema("INICIO#");
+        } catch (Exception e) {
+        }
+        try {
             if (!tokens.getAhead(1).lexema.equals("FIN#"))
                 bloque();
+        } catch (Exception e) {
+        }
+        try {
             matchLexema("FIN#");
         } catch (Exception e) {
         }
     }
 
     private void bloque() {
-        while (true) {
-            encabezado();
-            sentencia();
+        while (tokens.index < tokens.size()) {
             try {
+                encabezado();
+                sentencia();
                 matchLexema("}");
-            } catch (Exception e) {}
-            if (!tokens.getAhead(1).token.equals(BLOQUE))
-            break;
+                if (!tokens.getAhead(1).token.equals(BLOQUE))
+                    break;
+            } catch (Exception e) {
+                panico();
+                try {
+                    matchLexema("}");
+                } catch (Exception ex) {
+                }
+                if (!tokens.getAhead(1).token.equals(BLOQUE))
+                    break;
+            }
         }
     }
 
@@ -90,13 +126,13 @@ public class AnalizadorSintáctico {
         try {
             matchLexema("REPETIR");
             matchToken(CICLO);
-            EToken t;
             operacionBooleana();
             matchLexema("{");
-            t = tokens.getAhead(1).token;
             sentencia();
             matchLexema("}");
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            panico();
+        }
     }
 
     private void operacionBooleana() throws Exception {
@@ -107,7 +143,7 @@ public class AnalizadorSintáctico {
             t = tokens.getAhead(1).token;
             if (COMPUERTA.equals(t))
                 matchToken(COMPUERTA);
-            else{
+            else {
                 matchToken(OPERADOR_COMPARADOR);
                 matchToken(OPERADOR_COMPARADOR);
                 matchToken(OPERADOR_COMPARADOR);
@@ -132,12 +168,41 @@ public class AnalizadorSintáctico {
         }
     }
 
+    public static ArrayList<EToken> iniciadores;
+
+    public void iniciarIniciadores() {
+        iniciadores = new ArrayList<EToken>();
+        iniciadores.add(IDENTIFICADOR);
+        iniciadores.add(COMPONENTE);
+        iniciadores.add(CICLO);
+        iniciadores.add(TIPO_DE_DATO);
+        iniciadores.add(CONDICION_INICIAL);
+        iniciadores.add(ACCION);
+    }
+    
+    public static ArrayList<String> finalizadores;
+
+    public void iniciarFinalizadores() {
+        finalizadores = new ArrayList<String>();
+        finalizadores.add("}");
+        finalizadores.add("INTERRUMPIR");
+        finalizadores.add("FIN#");
+    }
+
     private void sentencia() {
         try {
             ciclo: while (true) {
                 EToken t = tokens.getAhead(1).token;
-                if (!(t.equals(COMPONENTE) || t.equals(IDENTIFICADOR) || t.equals(TIPO_DE_DATO) || t.equals(CICLO) || t.equals(CONDICION_INICIAL) || t.equals(ACCION)))
+                if (!iniciadores.contains(t)) {
+                    String tS = tokens.getAhead(1).lexema;
+                    if (finalizadores.contains(tS))
+                        return;
+                    Point p = tokens.actual.point;
+                    errores.add(String.format("Error sintáctico (Fila %s, Columna %s). Se esperaba seguir con: <%s>",
+                            p.x, p.y, "Iniciador de sentencia"));
+                    panico();
                     break ciclo;
+                }
                 switch (t) {
                     case COMPONENTE:
                         matchToken(COMPONENTE);
@@ -163,13 +228,13 @@ public class AnalizadorSintáctico {
                 }
                 matchToken(IDENTIFICADOR);
                 t = tokens.getAhead(1).token;
-                if (OPERADOR_UNARIO.equals(t)){
+                if (OPERADOR_UNARIO.equals(t)) {
                     matchToken(OPERADOR_UNARIO);
                     matchLexema(";");
                     continue ciclo;
                 }
                 String tS = tokens.getAhead(1).lexema;
-                if (tS.equals("=")){
+                if (tS.equals("=")) {
                     matchLexema("=");
                     t = tokens.getAhead(2).token;
                     if (!(t.equals(PREFIJO) || t.equals(UNIDAD)))
@@ -221,19 +286,22 @@ public class AnalizadorSintáctico {
                 }
                 matchLexema(";");
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            panico();
+        }
     }
-    
+
     private void condicion() {
         try {
             String tS = tokens.getAhead(1).lexema;
-            if (tS.equals("SI")){
+            if (tS.equals("SI")) {
                 matchLexema("SI");
                 operacionBooleana();
                 matchLexema("{");
                 sentencia();
+                matchLexema("}");
                 EToken t = tokens.getAhead(1).token;
-                if (t.equals(CONDICION)){
+                if (t.equals(CONDICION)) {
                     matchLexema("SI_NO");
                     tS = tokens.getAhead(1).lexema;
                     if (tS.equals("("))
@@ -242,7 +310,6 @@ public class AnalizadorSintáctico {
                     sentencia();
                     matchLexema("}");
                 }
-                matchLexema("}");
             } else {
                 matchLexema("ELEGIR");
                 matchLexema("(");
@@ -252,7 +319,7 @@ public class AnalizadorSintáctico {
                 matchLexema("{");
                 while (true) {
                     tS = tokens.getAhead(1).lexema;
-                    if (tS.equals("OPCION")){
+                    if (tS.equals("OPCION")) {
                         matchLexema("OPCION");
                         identificadorONumero();
                         matchLexema(":");
@@ -268,13 +335,15 @@ public class AnalizadorSintáctico {
                         matchLexema(";");
                     }
                     EToken t = tokens.getAhead(1).token;
-                    if (!CONDICION.equals(t)){
+                    if (!CONDICION.equals(t)) {
                         break;
                     }
                 }
                 matchLexema("}");
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            panico();
+        }
     }
 
     private void encabezado() {
@@ -297,7 +366,7 @@ public class AnalizadorSintáctico {
             }
             matchLexema("{");
         } catch (Exception e) {
-
+            panico();
         }
     }
 }

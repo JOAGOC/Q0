@@ -32,7 +32,6 @@ public class Tokenizer extends ArrayList<Token>{
             actual = this.get(++index);
             return this.get(index);
         } catch (IndexOutOfBoundsException e) {
-            index--;
             throw e;
         }
     }

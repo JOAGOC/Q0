@@ -22,6 +22,7 @@ public enum EToken {
     ACCION_BOOLEANA("Acción booleana"),
     CONDICION_INICIAL("Condición Inicial"),
     INTERRUPCION("Interrupción"),
+    AUXILIAR("Auxiliar"),
     OPERADOR_UNARIO("Operador Unario");
     
     private String token;

@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import static Analizadores.PalabrasReservadas.*;
 import static Analizadores.EToken.*;
 
@@ -18,6 +20,7 @@ public class AnalizadorLéxico {
     private String document = "0.23\n#Resistencia1_N#";
     public List<String> errores = new ArrayList<String>(); // almacenar errores
     public Tokenizer tokens = new Tokenizer();
+    public Map<String,EToken> tokensT = new HashMap<String,EToken>();
     private int index = 0;
     private int fila = 1;
     private int columna;
@@ -104,7 +107,8 @@ public class AnalizadorLéxico {
             case fin:
                 return false;
             case q4:
-                tokens.add(new Token(document.substring(initialIndex, index), IDENTIFICADOR, new Point(fila,getColumna())));
+                tokens.add(t = new Token(document.substring(initialIndex, index), IDENTIFICADOR, new Point(fila,getColumna())));
+                tokensT.put(t.lexema,t.token);
                 return true;
             default:
                 throw new ExcepcionAnalisis(
@@ -112,6 +116,7 @@ public class AnalizadorLéxico {
         }
     }
 
+    Token t;
     /**
      * Evalúa el documento para encontrar un número con la E.R.
      * ^([0-9]+.[0-9]+|.[0-9]+)$
@@ -179,10 +184,12 @@ public class AnalizadorLéxico {
                 throw new ExcepcionAnalisis(
                         String.format(mensajeError, fila, getColumna(), document.substring(initialIndex, index)));
             case q3:
-                tokens.add(new Token(document.substring(initialIndex, index), NUMERO, new Point(fila,getColumna())));
+                tokens.add(t = new Token(document.substring(initialIndex, index), NUMERO, new Point(fila,getColumna())));
+                tokensT.put(t.lexema,t.token);
                 return true;
             case q1:
-                tokens.add(new Token(document.substring(initialIndex, index), NUMERO, new Point(fila,getColumna())));
+                tokens.add(t = new Token(document.substring(initialIndex, index), NUMERO, new Point(fila,getColumna())));
+                tokensT.put(t.lexema,t.token);
                 return true;
         }
         return false;
@@ -224,16 +231,6 @@ public class AnalizadorLéxico {
                         else if (esIdentificador())
                             index--;
                         else {
-                            List<Character> separadores = new ArrayList<Character>();
-                            // Separadores
-                            // !, @, #, $, %, ^, &, *, -, +, =, {, }, [, ], (, ), <, >, ?, |, \, /, ,, ., ;,
-                            // :, ', "
-                            char[] caracteres = new char[] { '!', '^', '&', '*', '-', '+', '=', '{', '}', '[',
-                                    ']',
-                                    '(', ')', '<', '>', '?', '|', ',', '\\', '/', '.', ';', ' ', ':', '\'', '"','\n' };
-                            for (char c : caracteres) {
-                                separadores.add(c);
-                            }
                             final int initialIndex = index;
                             do {
                                 if (separadores.contains(document.charAt(index)))
@@ -259,30 +256,23 @@ public class AnalizadorLéxico {
     }
 
     private boolean esComentario() throws Exception{
-        final String mensajeError = "No se pudo resolver %s (Fila %d, Columna %d).";
-
         // Columnas de transicion
-        final int diagonal = 0;
+        final int andP = 0;
         final int otro = 1;
 
         // Estados
         final int q1 = 1;
-        final int q2 = 2;
-        final int q3 = 3;
-        final int error = -1;
         final int q0 = 0;
 
         final int estados[][] = {
-                // {diagonal, otro}
-                { q1, error }, // False
-                { q2, error }, // True
-                { q2, q2 }// True
+                // {andP, otro}
+                { q1, q0 }, // False
+                { q1, q1 } // True
         };
 
         int estado = q0;
         int caracter = q0;
         // Puntero del autómata
-        final int initialIndex = index;
         // Puntero inicial para el caso del error
 
         char c;
@@ -290,32 +280,15 @@ public class AnalizadorLéxico {
             c = document.charAt(index);
             if (c == '\n')
                 break;
-            if (c == '/')
-                caracter = diagonal;
+            if (c == '&')
+                caracter = andP;
             else
                 caracter = otro;
-            if (estado == q0 && caracter == otro)
+            if ((estado = estados[estado][caracter]) == q0 && caracter == otro)
                 break;
-            if ((estado = estados[estado][caracter]) == error) {
-                if (document.charAt(index) == '#' || ((int)document.charAt(index) >= 48 && (int)document.charAt(index) <=57)){
-                    --index;
-                    return false;
-                }
-                while (++index < document.length()) {
-                    c = document.charAt(index);
-                    if (c == '\n' || c == ' ')
-                        break;
-                }
-                throw new ExcepcionAnalisis(
-                        String.format(mensajeError, document.substring(initialIndex, index),fila, getColumna()));
-            }
-            // Se agrega esta condición para evitar el error StringIndexOutOfBoundsException
         } while (++index < document.length());
         switch (estado) {
             case q1:
-            throw new ExcepcionAnalisis(
-                String.format(mensajeError, document.substring(initialIndex, index),fila, getColumna()));
-            case q2:
                 return true;
             default:
                 return false;
@@ -335,7 +308,8 @@ public class AnalizadorLéxico {
 
     private boolean es(Map<String, EToken> tabla, String substring) {
         if (tabla.containsKey(substring)) {
-            tokens.add(new Token(substring, tabla.get(substring), new Point(fila,getColumna())));
+            tokens.add(t = new Token(substring, tabla.get(substring), new Point(fila,getColumna())));
+            tokensT.put(t.lexema,t.token);
             return true;
         }
         return false;
@@ -348,18 +322,29 @@ public class AnalizadorLéxico {
             return false;
         char c2;
         if (++index >= document.length()) {
-            tokens.add(new Token(c + "", tablaOperadores.get(c + ""), new Point(fila,getColumna())));
+            tokens.add(t = new Token(c + "", tablaOperadores.get(c + ""), new Point(fila,getColumna())));
+            tokensT.put(t.lexema,t.token);
             return true;
         }
         c2 = document.charAt(index);
         String xd = (c+"") + (c2+"");
         if (!tablaOperadores.containsKey(xd)) {
-            tokens.add(new Token(c + "", tablaOperadores.get(c + ""), new Point(fila,getColumna())));
+            tokens.add(t = new Token(c + "", tablaOperadores.get(c + ""), new Point(fila,getColumna())));
+            tokensT.put(t.lexema,t.token);
             index--;
             return true;
         } else {
-            tokens.add(new Token(xd, tablaOperadores.get(xd), new Point(fila,getColumna())));
+            tokens.add(t = new Token(xd, tablaOperadores.get(xd), new Point(fila,getColumna())));
+            tokensT.put(t.lexema,t.token);
             return true;
         }
+    }
+
+    public String getTokens() {
+        String tokens = "";
+        for (Map.Entry<String, EToken> entry : tokensT.entrySet()) {
+            tokens += entry.getKey()+"\t\t"+entry.getValue()+"\n";
+        }
+        return tokens;        
     }
 }
